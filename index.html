@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OriginOS Pro Experience</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        /* Phone Hardware */
+        .phone-frame {
+            width: 360px;
+            height: 740px;
+            border: 12px solid #1a1a1a;
+            border-radius: 55px;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 50px rgba(255,255,255,0.1);
+        }
+        /* Wallpaper & Screens */
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: url('https://w0.peakpx.com/wallpaper/559/335/陣-wallpaper-origin-os-4-ocean-style.jpg') center/cover;
+            position: relative;
+        }
+        /* 1. Lock Screen */
+        #lock-screen {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.5s;
+        }
+        .unlocked #lock-screen {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .clock { color: white; font-size: 65px; margin-top: 100px; font-weight: 100; }
+        .fp-scanner {
+            position: absolute;
+            bottom: 80px;
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,255,255,0.5);
+            background: rgba(0,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0,255,255,0.4); }
+            70% { box-shadow: 0 0 0 25px rgba(0,255,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,255,255,0); }
+        }
+        /* 2. Home Screen */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 60px 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .unlocked .home-grid { opacity: 1; }
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .app-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: white;
+            padding: 2px;
+        }
+        .app-item span { color: white; font-size: 11px; margin-top: 8px; text-shadow: 0 2px 4px #000; }
+        /* 3. REAL APP ANIMATION OVERLAY */
+        #app-overlay {
+            position: absolute;
+            z-index: 1000;
+            background: #fff;
+            transform-origin: center;
+            transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+            border-radius: 18px;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #app-overlay.active {
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        /* 4. Navigation Bar (Only in Home/Apps) */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            background: transparent;
+            z-index: 1500;
+        }
+        .unlocked .nav-bar { display: flex; }
+        .nav-key { width: 18px; height: 18px; border: 2.5px solid white; opacity: 0.8; cursor: pointer; }
+        .back { width: 13px; height: 13px; border-top: none; border-right: none; transform: rotate(45deg); }
+        .home { border-radius: 50%; }
+        .recent { border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="phone-frame" id="phone">
+    <div class="screen">
+       
+        <div id="lock-screen">
+            <div class="clock" id="time">09:41</div>
+            <div style="color: white; font-size: 14px; margin-top: 10px; opacity: 0.8;">OriginOS Ocean</div>
+            <div class="fp-scanner" onclick="unlock()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2361/2361907.png" width="35" style="filter: invert(1);">
+            </div>
+        </div>
+        <div class="home-grid">
+            <div class="app-item" onclick="launchApp(this, 'Camera', '#000')">
+                <img class="app-icon" src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Vivo_Camera_Icon.png">
+                <span>Camera</span>
+            </div>
+            <div class="app-item" onclick="launchApp(this, 'Albums', '#fff')">
+                <img class="app-icon" src="https://cdn-icons-png.flaticon.com/512/2659/2659360.png">
+                <span>Albums</span>
+            </div>
+            <div class="app-item" onclick="launchApp(this, 'Settings', '#f2f2f2')">
+                <img class="app-icon" src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png">
+                <span>Settings</span>
+            </div>
+            <div class="app-item" onclick="launchApp(this, 'Music', '#fff')">
+                <img class="app-icon" src="https://cdn-icons-png.flaticon.com/512/2995/2995101.png">
+                <span>Music</span>
+            </div>
+        </div>
+        <div id="app-overlay">
+            <div class="app-content">
+                <h2 id="app-name" style="margin-bottom: 10px;">App</h2>
+                <p style="color: #888;">Vivo Mobile Experience</p>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-key back" onclick="exitApp()"></div>
+            <div class="nav-key home" onclick="exitApp()"></div>
+            <div class="nav-key recent"></div>
+        </div>
+    </div>
+</div>
+<script>
+    let currentAppSource = null;
+    function unlock() {
+        document.getElementById('phone').classList.add('unlocked');
+    }
+    function launchApp(el, name, bg) {
+        currentAppSource = el;
+        const overlay = document.getElementById('app-overlay');
+        const rect = el.getBoundingClientRect();
+        const phoneRect = document.getElementById('phone').getBoundingClientRect();
+        // Icon එක තියෙන තැනට overlay එක set කිරීම
+        overlay.style.top = (rect.top - phoneRect.top) + 'px';
+        overlay.style.left = (rect.left - phoneRect.left) + 'px';
+        overlay.style.width = rect.width + 'px';
+        overlay.style.height = rect.height + 'px';
+        overlay.style.backgroundColor = bg;
+        document.getElementById('app-name').innerText = name;
+        setTimeout(() => {
+            overlay.classList.add('active');
+            overlay.style.opacity = "1";
+        }, 20);
+    }
+    function exitApp() {
+        const overlay = document.getElementById('app-overlay');
+        if(!overlay.classList.contains('active')) return;
+        const rect = currentAppSource.getBoundingClientRect();
+        const phoneRect = document.getElementById('phone').getBoundingClientRect();
+        overlay.classList.remove('active');
+       
+        // ආපහු icon එක තිබ්බ තැනට shrink වීම
+        overlay.style.top = (rect.top - phoneRect.top) + 'px';
+        overlay.style.left = (rect.left - phoneRect.left) + 'px';
+        overlay.style.width = rect.width + 'px';
+        overlay.style.height = rect.height + 'px';
+       
+        setTimeout(() => {
+            overlay.style.opacity = "0";
+        }, 400);
+    }
+    // Update Real Time
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('time').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    }, 1000);
+</script>
+</body>
+</html>
